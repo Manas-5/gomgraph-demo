@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { ComponentType } from "react";
 import type { GraphData, GraphLink, GraphNode } from "@/lib/types";
 
 const ForceGraph2D = dynamic(() => import("react-force-graph-2d"), {
@@ -107,9 +108,15 @@ export default function GraphCanvas({
     [],
   );
 
+  // react-force-graph-2d's generics are strict about NodeObject / LinkObject shapes
+  // (id is optional, source/target can be string|NodeObject). Casting to a permissive
+  // any-typed component avoids fighting the library's type wrapper at every callback.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const ForceGraphAny = ForceGraph2D as unknown as ComponentType<any>;
+
   return (
     <div ref={containerRef} className="h-full w-full">
-      <ForceGraph2D
+      <ForceGraphAny
         graphData={filteredData}
         width={dimensions.width}
         height={dimensions.height}
@@ -132,15 +139,14 @@ export default function GraphCanvas({
         linkColor={() => "rgba(120,120,120,0.25)"}
         linkWidth={0.7}
         nodeCanvasObject={nodeCanvasObject}
-        nodePointerAreaPaint={(node, color, ctx) => {
-          const n = node as GraphNode & { x?: number; y?: number };
-          if (n.x === undefined || n.y === undefined) return;
+        nodePointerAreaPaint={(node: GraphNode & { x?: number; y?: number }, color: string, ctx: CanvasRenderingContext2D) => {
+          if (node.x === undefined || node.y === undefined) return;
           ctx.fillStyle = color;
           ctx.beginPath();
-          ctx.arc(n.x, n.y, 8, 0, 2 * Math.PI, false);
+          ctx.arc(node.x, node.y, 8, 0, 2 * Math.PI, false);
           ctx.fill();
         }}
-        onNodeClick={(node) => onNodeSelect(node as GraphNode)}
+        onNodeClick={(node: GraphNode) => onNodeSelect(node)}
         onBackgroundClick={() => onNodeSelect(null)}
         cooldownTicks={120}
       />
