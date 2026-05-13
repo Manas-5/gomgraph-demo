@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GOMGraph Demo
 
-## Getting Started
+> **Code by [Manas Raaj](https://github.com/Manas-5) × [Pablo Sánchez Martín](https://github.com/pablo-sanchez-sony) × [Claude](https://www.anthropic.com/claude) (Anthropic).**
+> Built at Sony CSL Paris & Sony AI (Planetary Agenda track).
 
-First, run the development server:
+Interactive visualization of a knowledge graph extracted from **_Manuel pratique de la culture maraîchère de Paris_** by Moreau & Daverne (1845) — a 19th-century French market-gardening manual — using a production LLM pipeline I built during my Sony CSL Paris internship.
+
+**Live demo:** _to be added after Vercel deploy_
+
+**Source pipeline:** [github.com/Manas-5/GOMGraph-LLM-Based-KG-Extraction](https://github.com/Manas-5/GOMGraph-LLM-Based-KG-Extraction)
+
+**Thesis:** [GOMGraph: LLM-Based Knowledge Graph Extraction From Historical Market Gardening Text](https://github.com/Manas-5/Internship_Theses/blob/main/main.pdf)
+
+## What's in the graph
+
+- **1,697 nodes** — entities extracted from the source text (plants, pests, equipment, locations, people, structures, plant parts, inputs)
+- **6,294 relations** — typed connections (HasCharacteristic, AssociatedWith, GrownIn, PlantedIn, SeasonalRelatedness, Precedes, Uses, etc.)
+- **Custom domain ontology** — 27 edge types and 51 entity-pair constraints, designed for agricultural knowledge representation
+- **Extracted via LLaMA 3.1 70B** through a custom pipeline using a forked [Graphiti](https://github.com/getzep/graphiti) framework over [FalkorDB](https://www.falkordb.com/)
+
+## Features
+
+- Force-directed graph layout (`react-force-graph-2d`)
+- Node-type filter sidebar (toggle Plant / Pest / Equipment / Location / etc.)
+- Live search by entity name
+- Click any node to pin its summary in the sidebar
+- Hover for relation tooltips (the natural-language fact the LLM extracted)
+
+## Stack
+
+| Layer | Tool |
+|---|---|
+| Framework | Next.js 16 (App Router, Turbopack) |
+| Language | TypeScript |
+| Styling | Tailwind CSS v4 |
+| Graph viz | `react-force-graph-2d` |
+| Data | Static JSON exported from FalkorDB |
+| Deployment | Vercel |
+
+The data is served as a static JSON file (~1.3 MB) generated from the original FalkorDB property graph. No backend at runtime; the entire visualization runs in the browser.
+
+## Local development
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# open http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+To regenerate `public/graph.json` from a fresh FalkorDB export, run `gomgraph-demo-data-prep.py` against `nodes_*.tsv` and `edges_*.tsv` from the upstream pipeline.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## License
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This demo and the underlying GOMGraph code are part of an internship deliverable at Sony CSL Paris and Sony AI. Please contact the author for reuse terms.
